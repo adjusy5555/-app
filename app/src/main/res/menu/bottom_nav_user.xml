@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_send"
+        android:icon="@android:drawable/ic_menu_send"
+        android:title="寄件" />
+
+    <item
+        android:id="@+id/nav_packages"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="我的快递" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@android:drawable/ic_menu_myplaces"
+        android:title="我的" />
+
+</menu>

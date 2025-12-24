@@ -8,6 +8,7 @@
 
 
     <application
+
         android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -51,6 +52,36 @@
         <!-- 管理员主界面 -->
         <activity
             android:name=".ui.admin.AdminMainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 地址管理 -->
+        <activity
+            android:name=".ui.user.AddressListActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 编辑地址 -->
+        <activity
+            android:name=".ui.user.EditAddressActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 快递详情 -->
+        <activity
+            android:name=".ui.user.PackageDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 修改密码 -->
+        <activity
+            android:name=".ui.user.ChangePasswordActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 编辑资料 -->
+        <activity
+            android:name=".ui.user.EditProfileActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 

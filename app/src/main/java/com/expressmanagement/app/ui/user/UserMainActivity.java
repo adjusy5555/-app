@@ -1,52 +1,100 @@
 package com.expressmanagement.app.ui.user;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.expressmanagement.app.R;
-import com.expressmanagement.app.database.AppDatabase;
-import com.expressmanagement.app.entity.User;
-import com.expressmanagement.app.ui.login.LoginActivity;
-import com.expressmanagement.app.utils.PreferencesUtil;
-import com.google.android.material.button.MaterialButton;
+import com.expressmanagement.app.ui.user.fragment.MyPackagesFragment;
+import com.expressmanagement.app.ui.user.fragment.ProfileFragment;
+import com.expressmanagement.app.ui.user.fragment.SendPackageFragment;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+/**
+ * 用户主界面
+ * 包含底部导航栏，切换三个Fragment：寄件、我的快递、个人中心
+ */
 public class UserMainActivity extends AppCompatActivity {
+
+    private MaterialToolbar toolbar;
+    private BottomNavigationView bottomNavigation;
+
+    private SendPackageFragment sendPackageFragment;
+    private MyPackagesFragment myPackagesFragment;
+    private ProfileFragment profileFragment;
+
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_user_main);
 
-        // 临时简单布局
-        setContentView(createTempLayout());
+        // 初始化视图
+        initViews();
 
-        // 显示用户信息
-        int userId = PreferencesUtil.getCurrentUserId(this);
-        User user = AppDatabase.getInstance(this).userDao().getUserById(userId);
+        // 初始化Fragment
+        initFragments();
 
-        TextView tvWelcome = findViewById(R.id.tvWelcome);
-        tvWelcome.setText("欢迎进入用户主界面\n\n" +
-                "账号：" + user.getUsername() + "\n" +
-                "角色：普通用户");
+        // 设置监听器
+        setListeners();
 
-        // 退出登录按钮
-        MaterialButton btnLogout = findViewById(R.id.btnLogout);
-        btnLogout.setOnClickListener(v -> logout());
+        // 默认显示寄件页面
+        showFragment(sendPackageFragment);
+        bottomNavigation.setSelectedItemId(R.id.nav_send);
     }
 
-    private void logout() {
-        PreferencesUtil.clearLoginStatus(this);
-        Toast.makeText(this, "已退出登录", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(this, LoginActivity.class);
-        startActivity(intent);
-        finish();
+    private void initViews() {
+        toolbar = findViewById(R.id.toolbar);
+        bottomNavigation = findViewById(R.id.bottomNavigation);
+
+        // 设置工具栏
+        setSupportActionBar(toolbar);
     }
 
-    private int createTempLayout() {
-        // 临时返回一个布局ID（需要创建activity_user_main_temp.xml）
-        return R.layout.activity_user_main_temp;
+    private void initFragments() {
+        sendPackageFragment = new SendPackageFragment();
+        myPackagesFragment = new MyPackagesFragment();
+        profileFragment = new ProfileFragment();
+    }
+
+    private void setListeners() {
+        bottomNavigation.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.nav_send) {
+                showFragment(sendPackageFragment);
+                toolbar.setTitle("寄件");
+                return true;
+            } else if (itemId == R.id.nav_packages) {
+                showFragment(myPackagesFragment);
+                toolbar.setTitle("我的快递");
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                showFragment(profileFragment);
+                toolbar.setTitle("个人中心");
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    /**
+     * 显示指定的Fragment
+     */
+    private void showFragment(Fragment fragment) {
+        if (currentFragment == fragment) {
+            return;
+        }
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, fragment)
+                .commit();
+
+        currentFragment = fragment;
     }
 }
