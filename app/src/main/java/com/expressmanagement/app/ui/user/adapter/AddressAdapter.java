@@ -58,8 +58,14 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Address address = addresses.get(position);
-        
+        // 使用holder.getAdapterPosition()获取实时位置
+        final int currentPosition = holder.getAdapterPosition();
+        if (currentPosition == RecyclerView.NO_POSITION) {
+            return;
+        }
+
+        Address address = addresses.get(currentPosition);
+
         // 标签
         if (!TextUtils.isEmpty(address.getTag())) {
             holder.tvTag.setText(address.getTag());
@@ -67,7 +73,7 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
         } else {
             holder.tvTag.setVisibility(View.GONE);
         }
-        
+
         // 默认地址标识
         if (address.isDefault()) {
             holder.tvDefault.setVisibility(View.VISIBLE);
@@ -76,45 +82,57 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.ViewHold
             holder.tvDefault.setVisibility(View.GONE);
             holder.btnSetDefault.setVisibility(View.VISIBLE);
         }
-        
+
         // 收件人信息
         holder.tvReceiverName.setText(address.getReceiverName());
-        
+
         // 手机号脱敏
         String phone = address.getReceiverPhone();
         if (phone != null && phone.length() == 11) {
             phone = phone.substring(0, 3) + "****" + phone.substring(7);
         }
         holder.tvReceiverPhone.setText(phone);
-        
+
         // 详细地址
         holder.tvAddress.setText(address.getFullAddress());
-        
+
         // 点击事件
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
-                onItemClickListener.onItemClick(address);
+                int pos = holder.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    onItemClickListener.onItemClick(addresses.get(pos));
+                }
             }
         });
-        
+
         // 编辑按钮
         holder.ivEdit.setOnClickListener(v -> {
             if (onItemClickListener != null) {
-                onItemClickListener.onEditClick(address);
+                int pos = holder.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    onItemClickListener.onEditClick(addresses.get(pos));
+                }
             }
         });
-        
+
         // 删除按钮
         holder.ivDelete.setOnClickListener(v -> {
             if (onItemClickListener != null) {
-                onItemClickListener.onDeleteClick(address);
+                int pos = holder.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    onItemClickListener.onDeleteClick(addresses.get(pos));
+                }
             }
         });
-        
+
         // 设为默认按钮
         holder.btnSetDefault.setOnClickListener(v -> {
             if (onItemClickListener != null) {
-                onItemClickListener.onSetDefaultClick(address);
+                int pos = holder.getAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) {
+                    onItemClickListener.onSetDefaultClick(addresses.get(pos));
+                }
             }
         });
     }

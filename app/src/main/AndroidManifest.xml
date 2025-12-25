@@ -85,6 +85,12 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- 历史记录 -->
+        <activity
+            android:name=".ui.courier.HistoryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
     </application>
 
 </manifest>

@@ -9,10 +9,12 @@ import androidx.room.ForeignKey;
         foreignKeys = {
                 @ForeignKey(entity = User.class,
                         parentColumns = "uid",
-                        childColumns = "sender_id"),
+                        childColumns = "sender_id",
+                        onDelete = ForeignKey.NO_ACTION),
                 @ForeignKey(entity = Address.class,
                         parentColumns = "aid",
-                        childColumns = "address_id")
+                        childColumns = "address_id",
+                        onDelete = ForeignKey.NO_ACTION)
         })
 public class Package {
 

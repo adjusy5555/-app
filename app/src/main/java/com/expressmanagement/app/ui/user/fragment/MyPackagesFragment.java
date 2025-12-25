@@ -50,6 +50,9 @@ public class MyPackagesFragment extends Fragment {
         pagerAdapter = new PackagesPagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
 
+        // 设置离屏页面数，避免Fragment被销毁
+        viewPager.setOffscreenPageLimit(2);
+
         // 关联TabLayout和ViewPager2
         new TabLayoutMediator(tabLayout, viewPager,
                 (tab, position) -> {

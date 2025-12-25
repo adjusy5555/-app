@@ -32,13 +32,13 @@ public class AddressListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private LinearLayout layoutEmpty;
     private FloatingActionButton fabAdd;
-    
+
     private AddressAdapter adapter;
     private AppDatabase database;
     private int currentUserId;
-    
+
     private boolean selectMode = false; // 是否为选择地址模式
-    
+
     private static final int REQUEST_ADD_ADDRESS = 1001;
     private static final int REQUEST_EDIT_ADDRESS = 1002;
 
@@ -46,35 +46,35 @@ public class AddressListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_address_list);
-        
+
         // 获取选择模式标识
         selectMode = getIntent().getBooleanExtra("select_mode", false);
-        
+
         database = AppDatabase.getInstance(this);
         currentUserId = PreferencesUtil.getCurrentUserId(this);
-        
+
         initViews();
         setupRecyclerView();
         setListeners();
         loadData();
     }
-    
+
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         recyclerView = findViewById(R.id.recyclerView);
         layoutEmpty = findViewById(R.id.layoutEmpty);
         fabAdd = findViewById(R.id.fabAdd);
-        
+
         // 设置工具栏
         setSupportActionBar(toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
     }
-    
+
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        
+
         adapter = new AddressAdapter(this, selectMode);
-        
+
         // 设置点击事件
         adapter.setOnItemClickListener(new AddressAdapter.OnItemClickListener() {
             @Override
@@ -106,10 +106,10 @@ public class AddressListActivity extends AppCompatActivity {
                 setDefaultAddress(address);
             }
         });
-        
+
         recyclerView.setAdapter(adapter);
     }
-    
+
     private void setListeners() {
         fabAdd.setOnClickListener(v -> {
             // 检查地址数量限制
@@ -118,15 +118,15 @@ public class AddressListActivity extends AppCompatActivity {
                 Toast.makeText(this, "最多只能保存10个地址", Toast.LENGTH_SHORT).show();
                 return;
             }
-            
+
             Intent intent = new Intent(this, EditAddressActivity.class);
             startActivityForResult(intent, REQUEST_ADD_ADDRESS);
         });
     }
-    
+
     private void loadData() {
         List<Address> addresses = database.addressDao().getUserAddresses(currentUserId);
-        
+
         if (addresses.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             layoutEmpty.setVisibility(View.VISIBLE);
@@ -136,7 +136,7 @@ public class AddressListActivity extends AppCompatActivity {
             adapter.setAddresses(addresses);
         }
     }
-    
+
     private void showDeleteDialog(Address address) {
         new AlertDialog.Builder(this)
                 .setTitle("删除地址")
@@ -145,33 +145,41 @@ public class AddressListActivity extends AppCompatActivity {
                 .setNegativeButton("取消", null)
                 .show();
     }
-    
+
     private void deleteAddress(Address address) {
-        database.addressDao().delete(address);
-        
-        // 记录日志
-        SystemLogHelper.logAddressAction(this, currentUserId, "DELETE", address.getAid());
-        
-        Toast.makeText(this, "地址已删除", Toast.LENGTH_SHORT).show();
-        loadData();
+        try {
+            // 删除数据库记录
+            database.addressDao().delete(address);
+
+            // 记录日志
+            SystemLogHelper.logAddressAction(this, currentUserId, "DELETE", address.getAid());
+
+            Toast.makeText(this, "地址已删除", Toast.LENGTH_SHORT).show();
+
+            // 重新加载数据
+            loadData();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "删除失败: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
-    
+
     private void setDefaultAddress(Address address) {
         // 先清除所有默认地址
         database.addressDao().clearDefaultAddress(currentUserId);
-        
+
         // 设置新的默认地址
         address.setDefault(true);
         database.addressDao().update(address);
-        
+
         Toast.makeText(this, "已设为默认地址", Toast.LENGTH_SHORT).show();
         loadData();
     }
-    
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
+
         if (resultCode == RESULT_OK) {
             // 刷新列表
             loadData();

@@ -90,10 +90,27 @@ public class UserMainActivity extends AppCompatActivity {
             return;
         }
 
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragmentContainer, fragment)
-                .commit();
+        // 使用add和hide/show机制，避免重复创建Fragment
+        if (fragment.isAdded()) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .hide(currentFragment)
+                    .show(fragment)
+                    .commit();
+        } else {
+            if (currentFragment != null) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .hide(currentFragment)
+                        .add(R.id.fragmentContainer, fragment)
+                        .commit();
+            } else {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .add(R.id.fragmentContainer, fragment)
+                        .commit();
+            }
+        }
 
         currentFragment = fragment;
     }

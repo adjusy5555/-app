@@ -69,6 +69,12 @@ public interface PackageDao {
     @Query("SELECT COUNT(*) FROM package WHERE courier_id = :courierId AND status = 4")
     int getCourierCompletedCount(int courierId);
 
+    @Query("SELECT COUNT(*) FROM package WHERE courier_id = :courierId AND status = 4 AND update_time >= :startTime")
+    int getCourierCompletedCountByTime(int courierId, long startTime);
+
+    @Query("SELECT * FROM package WHERE courier_id = :courierId AND status = :status ORDER BY update_time DESC")
+    List<Package> getCourierPackagesByStatus(int courierId, int status);
+
     @Query("DELETE FROM package WHERE pid = :pid")
     void deleteById(int pid);
 }
