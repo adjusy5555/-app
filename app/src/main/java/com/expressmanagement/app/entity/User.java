@@ -8,6 +8,12 @@ import androidx.room.ColumnInfo;
 public
 class User {
 
+    /**
+     * 账号状态: 0-正常, 1-已注销/删除
+     */
+    @ColumnInfo(name = "status", defaultValue = "0")
+    private int status;
+
     @PrimaryKey(autoGenerate = true)
     private int uid;
 
@@ -37,12 +43,19 @@ class User {
     }
 
     public User(String username, String password, String phone, int role) {
+        this.status = 0;
         this.username = username;
         this.password = password;
         this.phone = phone;
         this.role = role;
         this.createTime = System.currentTimeMillis();
     }
+
+    public int getStatus() { return status; }
+
+    public void setStatus(int status) { this.status = status; }
+
+    public boolean isValid() { return status == 0; }
 
     // Getters and Setters
     public int getUid() {

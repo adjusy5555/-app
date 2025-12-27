@@ -22,22 +22,25 @@ public interface UserDao {
     @Delete
     void delete(User user);
 
+    @Query("UPDATE user SET status = 1 WHERE uid = :uid")
+    void softDelete(int uid);
+
     @Query("SELECT * FROM user WHERE uid = :uid")
     User getUserById(int uid);
 
     @Query("SELECT * FROM user WHERE username = :username")
     User getUserByUsername(String username);
 
-    @Query("SELECT * FROM user WHERE username = :username AND password = :password")
+    @Query("SELECT * FROM user WHERE username = :username AND password = :password AND status = 0")
     User login(String username, String password);
 
-    @Query("SELECT * FROM user WHERE phone = :phone")
+    @Query("SELECT * FROM user WHERE phone = :phone AND status = 0")
     User getUserByPhone(String phone);
 
-    @Query("SELECT * FROM user")
+    @Query("SELECT * FROM user WHERE status = 0")
     List<User> getAllUsers();
 
-    @Query("SELECT * FROM user WHERE role = :role")
+    @Query("SELECT * FROM user WHERE role = :role AND status = 0")
     List<User> getUsersByRole(int role);
 
     @Query("SELECT COUNT(*) FROM user WHERE username = :username")
