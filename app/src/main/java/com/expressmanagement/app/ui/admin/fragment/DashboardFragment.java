@@ -31,7 +31,6 @@ public class DashboardFragment extends Fragment {
     private TextView tvTotalOrders;
     private TextView tvCompletedOrders;
     private MaterialButton btnRefresh;
-    private MaterialButton btnAnnouncement;
 
     private AppDatabase db;
 
@@ -60,7 +59,6 @@ public class DashboardFragment extends Fragment {
         tvTotalOrders = view.findViewById(R.id.tvTotalOrders);
         tvCompletedOrders = view.findViewById(R.id.tvCompletedOrders);
         btnRefresh = view.findViewById(R.id.btnRefresh);
-        btnAnnouncement = view.findViewById(R.id.btnAnnouncement);
     }
 
     private void initDatabase() {
@@ -108,10 +106,6 @@ public class DashboardFragment extends Fragment {
         btnRefresh.setOnClickListener(v -> {
             loadData();
             Toast.makeText(requireContext(), "数据已刷新", Toast.LENGTH_SHORT).show();
-        });
-
-        btnAnnouncement.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "发布公告功能开发中", Toast.LENGTH_SHORT).show();
         });
     }
 

@@ -10,6 +10,7 @@ import com.expressmanagement.app.ui.admin.fragment.DashboardFragment;
 import com.expressmanagement.app.ui.admin.fragment.OrderManagementFragment;
 import com.expressmanagement.app.ui.admin.fragment.SystemLogsFragment;
 import com.expressmanagement.app.ui.admin.fragment.UserManagementFragment;
+import com.expressmanagement.app.ui.admin.fragment.AdminProfileFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -26,6 +27,8 @@ public class AdminMainActivity extends AppCompatActivity {
     private UserManagementFragment userManagementFragment;
     private OrderManagementFragment orderManagementFragment;
     private SystemLogsFragment systemLogsFragment;
+
+    private AdminProfileFragment adminProfileFragment;
 
     private Fragment currentFragment;
 
@@ -55,6 +58,7 @@ public class AdminMainActivity extends AppCompatActivity {
         userManagementFragment = new UserManagementFragment();
         orderManagementFragment = new OrderManagementFragment();
         systemLogsFragment = new SystemLogsFragment();
+        adminProfileFragment = new AdminProfileFragment();
     }
 
     private void setListeners() {
@@ -77,6 +81,12 @@ public class AdminMainActivity extends AppCompatActivity {
                 showFragment(systemLogsFragment);
                 toolbar.setTitle("系统日志");
                 return true;
+            } else if (itemId == R.id.nav_admin_profile) {
+                // 添加日志
+                android.util.Log.d("AdminMain", "进入个人中心");
+                showFragment(adminProfileFragment);
+                toolbar.setTitle("我的");
+                return true;
             }
 
             return false;
@@ -84,6 +94,12 @@ public class AdminMainActivity extends AppCompatActivity {
     }
 
     private void showFragment(Fragment fragment) {
+        // 🛡️ 增加判空保护
+        if (fragment == null) {
+            android.util.Log.e("AdminMainActivity", "尝试显示的 Fragment 为 null");
+            return;
+        }
+
         if (currentFragment == fragment) {
             return;
         }
