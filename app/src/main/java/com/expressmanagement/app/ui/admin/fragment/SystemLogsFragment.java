@@ -34,10 +34,10 @@ public class SystemLogsFragment extends Fragment {
     private LinearLayout layoutEmpty;
     private MaterialButton btnFilter;
     private MaterialButton btnExport;
-    
+
     private SystemLogAdapter adapter;
     private AppDatabase db;
-    
+
     private String selectedActionType = null; // null表示全部
 
     @Nullable
@@ -50,7 +50,7 @@ public class SystemLogsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initViews(view);
         initDatabase();
         setupRecyclerView();
@@ -79,17 +79,17 @@ public class SystemLogsFragment extends Fragment {
 
     private void setupSpinner() {
         String[] actionTypes = {
-            "全部操作",
-            "用户登录",
-            "用户注册",
-            "创建订单",
-            "更新状态",
-            "取消订单",
-            "接单",
-            "修改密码",
-            "管理员操作"
+                "全部操作",
+                "用户登录",
+                "用户注册",
+                "创建订单",
+                "更新状态",
+                "取消订单",
+                "接单",
+                "修改密码",
+                "管理员操作"
         };
-        
+
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                 requireContext(),
                 android.R.layout.simple_spinner_item,
@@ -97,7 +97,7 @@ public class SystemLogsFragment extends Fragment {
         );
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerActionType.setAdapter(spinnerAdapter);
-        
+
         spinnerActionType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -122,15 +122,60 @@ public class SystemLogsFragment extends Fragment {
 
     private void setListeners() {
         btnFilter.setOnClickListener(v -> loadLogs());
-        
-        btnExport.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "导出CSV功能开发中", Toast.LENGTH_SHORT).show();
-        });
+
+        btnExport.setOnClickListener(v -> exportLogs());
+    }
+
+    private void exportLogs() {
+        List<SystemLog> logs = adapter.getLogs();
+        if (logs.isEmpty()) {
+            Toast.makeText(requireContext(), "没有可导出的日志", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 检查权限（Android 6.0+）
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (requireContext().checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                        new String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        1001
+                );
+                return;
+            }
+        }
+
+        // 执行导出
+        String filePath = com.expressmanagement.app.utils.CsvExporter.exportSystemLogs(
+                requireContext(),
+                logs
+        );
+
+        if (filePath != null) {
+            new android.app.AlertDialog.Builder(requireContext())
+                    .setTitle("导出成功")
+                    .setMessage("日志已导出到:\n" + filePath)
+                    .setPositiveButton("确定", null)
+                    .show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == 1001) {
+            if (grantResults.length > 0 &&
+                    grantResults[0] == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                exportLogs();
+            } else {
+                Toast.makeText(requireContext(), "需要存储权限才能导出文件", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void loadLogs() {
         List<SystemLog> logs;
-        
+
         if (selectedActionType == null) {
             // 加载全部日志
             logs = db.systemLogDao().getAllLogs();
@@ -138,7 +183,7 @@ public class SystemLogsFragment extends Fragment {
             // 按操作类型筛选
             logs = db.systemLogDao().getLogsByActionType(selectedActionType);
         }
-        
+
         if (logs.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             layoutEmpty.setVisibility(View.VISIBLE);

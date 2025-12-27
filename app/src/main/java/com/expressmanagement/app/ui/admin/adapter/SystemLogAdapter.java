@@ -38,6 +38,10 @@ public class SystemLogAdapter extends RecyclerView.Adapter<SystemLogAdapter.View
         notifyDataSetChanged();
     }
 
+    public List<SystemLog> getLogs() {
+        return logs;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -48,20 +52,20 @@ public class SystemLogAdapter extends RecyclerView.Adapter<SystemLogAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         SystemLog log = logs.get(position);
-        
+
         // 获取操作者信息
         String operatorInfo = getOperatorInfo(log.getOperatorId(), log.getOperatorRole());
         holder.tvOperator.setText(operatorInfo);
-        
+
         // 设置操作类型
         holder.tvActionType.setText(getActionTypeName(log.getActionType()));
-        
+
         // 设置描述
         holder.tvDescription.setText(log.getDescription());
-        
+
         // 设置时间
         holder.tvTime.setText(TimeUtil.formatDateTime(log.getTimestamp()));
-        
+
         // 设置卡片颜色（根据操作类型）
         int cardColor = getActionTypeColor(log.getActionType());
         holder.cardView.setCardBackgroundColor(cardColor);
@@ -76,19 +80,19 @@ public class SystemLogAdapter extends RecyclerView.Adapter<SystemLogAdapter.View
         if (operatorId == 0) {
             return "系统";
         }
-        
+
         User user = db.userDao().getUserById(operatorId);
         if (user == null) {
             return "未知用户 (ID: " + operatorId + ")";
         }
-        
+
         String roleName = "";
         switch (operatorRole) {
             case 0: roleName = "用户"; break;
             case 1: roleName = "快递员"; break;
             case 2: roleName = "管理员"; break;
         }
-        
+
         return user.getUsername() + " (" + roleName + ")";
     }
 
@@ -119,22 +123,22 @@ public class SystemLogAdapter extends RecyclerView.Adapter<SystemLogAdapter.View
             case "LOGIN":
             case "REGISTER":
                 return 0xFFE3F2FD; // 浅蓝色
-            
+
             case "CREATE_PACKAGE":
             case "CREATE":
                 return 0xFFE8F5E9; // 浅绿色
-            
+
             case "UPDATE_STATUS":
             case "UPDATE":
                 return 0xFFFFF3E0; // 浅橙色
-            
+
             case "CANCEL_PACKAGE":
             case "DELETE":
                 return 0xFFFFEBEE; // 浅红色
-            
+
             case "PICKUP":
                 return 0xFFF3E5F5; // 浅紫色
-            
+
             default:
                 if (actionType.startsWith("ADMIN_")) {
                     return 0xFFFFF9C4; // 浅黄色

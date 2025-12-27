@@ -13,8 +13,11 @@ import androidx.fragment.app.Fragment;
 
 import com.expressmanagement.app.R;
 import com.expressmanagement.app.database.AppDatabase;
+import com.expressmanagement.app.entity.Package;
 import com.expressmanagement.app.utils.TimeUtil;
 import com.google.android.material.button.MaterialButton;
+
+import java.util.List;
 
 /**
  * 数据看板Fragment
@@ -42,7 +45,7 @@ public class DashboardFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         initViews(view);
         initDatabase();
         loadData();
@@ -75,10 +78,18 @@ public class DashboardFragment extends Fragment {
         int todayCount = db.packageDao().getTodayCount(todayStart);
         tvTodayOrders.setText(String.valueOf(todayCount));
 
-        // 今日完成订单数（状态为4的订单）
-        int todayCompleted = 0;
-        // 这里需要添加一个新的查询方法，暂时用0代替
-        tvTodayCompleted.setText(String.valueOf(todayCompleted));
+        // 今日完成订单数（今天更新为已签收状态的订单）
+        // 查询状态为已签收且更新时间在今天的订单
+        List<Package> allCompleted =
+                db.packageDao().getPackagesByStatus(com.expressmanagement.app.utils.StatusUtil.STATUS_DELIVERED);
+
+        int todayCompletedCount = 0;
+        for (com.expressmanagement.app.entity.Package pkg : allCompleted) {
+            if (pkg.getUpdateTime() >= todayStart) {
+                todayCompletedCount++;
+            }
+        }
+        tvTodayCompleted.setText(String.valueOf(todayCompletedCount));
 
         // 总用户数
         int totalUsers = db.userDao().getAllUsers().size();
