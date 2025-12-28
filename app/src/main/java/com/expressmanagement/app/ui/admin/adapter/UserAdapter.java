@@ -52,19 +52,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         User user = users.get(position);
-        
+
         holder.tvUsername.setText(user.getUsername());
         holder.tvRole.setText(user.getRoleName());
         holder.tvPhone.setText(user.getPhone());
         holder.tvCreateTime.setText("注册时间: " + TimeUtil.formatDate(user.getCreateTime()));
-        
+
         // 设置角色标签颜色
         int roleColor = getRoleColor(user.getRole());
         holder.tvRole.setBackgroundColor(roleColor);
-        
+
         // 重置密码
         holder.btnResetPassword.setOnClickListener(v -> showResetPasswordDialog(user));
-        
+
         // 删除用户
         holder.btnDelete.setOnClickListener(v -> showDeleteDialog(user));
     }
@@ -95,7 +95,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     private void resetPassword(User user) {
         user.setPassword("123456");
         db.userDao().update(user);
-        
+
         // 记录日志
         int adminId = PreferencesUtil.getCurrentUserId(context);
         SystemLogHelper.logAdminForceAction(
@@ -106,7 +106,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 user.getUid(),
                 "重置用户密码: " + user.getUsername()
         );
-        
+
         Toast.makeText(context, "密码已重置为 123456", Toast.LENGTH_SHORT).show();
     }
 
@@ -116,14 +116,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             Toast.makeText(context, "不能删除管理员账号", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         // 不允许删除自己
         int currentUserId = PreferencesUtil.getCurrentUserId(context);
         if (user.getUid() == currentUserId) {
             Toast.makeText(context, "不能删除当前登录的账号", Toast.LENGTH_SHORT).show();
             return;
         }
-        
+
         new AlertDialog.Builder(context)
                 .setTitle("删除用户")
                 .setMessage("确定要删除用户 " + user.getUsername() + " 吗？此操作不可恢复！")
@@ -133,8 +133,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     }
 
     private void deleteUser(User user) {
-        db.userDao().delete(user);
-        
+        // 使用软删除：标记为已删除状态，而不是真的删除数据
+        user.setStatus(1); // 1 表示已删除
+        db.userDao().update(user);
+
         // 记录日志
         int adminId = PreferencesUtil.getCurrentUserId(context);
         SystemLogHelper.logAdminForceAction(
@@ -145,11 +147,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 user.getUid(),
                 "删除用户: " + user.getUsername()
         );
-        
+
         // 从列表中移除
         users.remove(user);
         notifyDataSetChanged();
-        
+
         Toast.makeText(context, "用户已删除", Toast.LENGTH_SHORT).show();
     }
 

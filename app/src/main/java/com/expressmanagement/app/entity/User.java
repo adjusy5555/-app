@@ -5,14 +5,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.ColumnInfo;
 
 @Entity(tableName = "user")
-public
-class User {
-
-    /**
-     * 账号状态: 0-正常, 1-已注销/删除
-     */
-    @ColumnInfo(name = "status", defaultValue = "0")
-    private int status;
+public class User {
 
     @PrimaryKey(autoGenerate = true)
     private int uid;
@@ -38,24 +31,26 @@ class User {
     @ColumnInfo(name = "create_time")
     private long createTime;
 
-    // 构造函数
+    /**
+     * 账号状态: 0-正常, 1-已删除
+     */
+    @ColumnInfo(name = "status")
+    private int status;
+
+    // 无参构造函数
     public User() {
+        this.status = 0; // 默认正常状态
     }
 
+    // 有参构造函数
     public User(String username, String password, String phone, int role) {
-        this.status = 0;
         this.username = username;
         this.password = password;
         this.phone = phone;
         this.role = role;
         this.createTime = System.currentTimeMillis();
+        this.status = 0; // 默认正常状态
     }
-
-    public int getStatus() { return status; }
-
-    public void setStatus(int status) { this.status = status; }
-
-    public boolean isValid() { return status == 0; }
 
     // Getters and Setters
     public int getUid() {
@@ -114,7 +109,19 @@ class User {
         this.createTime = createTime;
     }
 
-    // 角色判断方法
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    // 工具方法
+    public boolean isValid() {
+        return status == 0;
+    }
+
     public boolean isUser() {
         return role == 0;
     }
